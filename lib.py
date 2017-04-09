@@ -112,6 +112,8 @@ def extract_gradient_features(imgs, cspace='RGB', orient=9,
     for file in imgs:
         # Read in each one by one
         image = mpimg.imread(file)
+        # Normalize
+        image = image.astype(np.float32) / 255
         # apply color conversion if other than 'RGB'
         if cspace != 'RGB':
             if cspace == 'HSV':
@@ -152,6 +154,8 @@ def extract_color_features(imgs, cspace='RGB', spatial_size=(32, 32),
     for file in imgs:
         # Read in each one by one
         image = mpimg.imread(file)
+        # Normalize
+        image = image.astype(np.float32) / 255
         # apply color conversion if other than 'RGB'
         if cspace != 'RGB':
             if cspace == 'HSV':

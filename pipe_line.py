@@ -5,7 +5,7 @@ import pickle
 class Pipe_line():
     def __init__(self, classifier_file='svc.pkl', scaler_file='X_scaler.pkl', img_size=(720, 1280)):
         self.zero_heat = np.zeros(img_size, dtype=np.float)
-        self.scales = np.linspace(0.8, 2.0, 10)
+        self.scales = np.linspace(1.25, 2.5, 5)
         self.box_list = []
         self.ystart = 350
         self.ystop = 650
@@ -43,13 +43,17 @@ class Pipe_line():
         # Add heat to each box in box list
         heat = add_heat(heat, box_list)
         # Apply threshold to help remove false positives
-        heat = apply_threshold(heat, 3)
+        heat = apply_threshold(heat, 1)
         # Visualize the heatmap when displaying
         heatmap = np.clip(heat, 0, 255)
         # Find final boxes from heatmap using label function
         labels = label(heatmap)
         draw_img = draw_labeled_bboxes(np.copy(image), labels)
         return draw_img
+
+class Car():
+    def __init__(self):
+        pass
 
 # import matplotlib.image as mpimg
 # import matplotlib.pyplot as plt
