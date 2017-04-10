@@ -1,11 +1,12 @@
 from lib import *
 import numpy as np
 import pickle
+from collections import deque
 
 class Pipe_line():
     def __init__(self, classifier_file='svc.pkl', scaler_file='X_scaler.pkl', img_size=(720, 1280)):
         self.zero_heat = np.zeros(img_size, dtype=np.float)
-        self.scales = np.linspace(1.25, 2.5, 5)
+        self.scales = [1.0, 1.2, 1.4, 1.6]
         self.box_list = []
         self.ystart = 350
         self.ystop = 650
@@ -22,10 +23,12 @@ class Pipe_line():
             self.svc = pickle.load(f)
         with open(scaler_file, "rb") as f:
             self.X_scaler = pickle.load(f)
+
     def process(self, image):
         heat = self.zero_heat.copy()
         box_list = []
         for scale in self.scales:
+
             boxes = find_cars(image,
                               ystart=self.ystart,
                               ystop=self.ystop,
@@ -48,18 +51,6 @@ class Pipe_line():
         heatmap = np.clip(heat, 0, 255)
         # Find final boxes from heatmap using label function
         labels = label(heatmap)
-        draw_img = draw_labeled_bboxes(np.copy(image), labels)
+        bboxes = labeled_bboxes(labels)
+        draw_img = draw_boxes(image, bboxes)
         return draw_img
-
-class Car():
-    def __init__(self):
-        pass
-
-# import matplotlib.image as mpimg
-# import matplotlib.pyplot as plt
-# img_file = './test_images/test4.jpg'
-# test_img = mpimg.imread(img_file)
-# pipe_line = Pipe_line()
-# draw_img = pipe_line.process(test_img)
-# plt.imshow(draw_img)
-# plt.show()

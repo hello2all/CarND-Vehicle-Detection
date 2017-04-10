@@ -1,6 +1,4 @@
-##Writeup Template
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
+## Udacity SDCND Project 5
 ---
 
 **Vehicle Detection Project**
@@ -8,10 +6,15 @@
 The goals / steps of this project are the following:
 
 * Perform a Histogram of Oriented Gradients (HOG) feature extraction on a labeled training set of images and train a classifier Linear SVM classifier
-* Optionally, you can also apply a color transform and append binned color features, as well as histograms of color, to your HOG feature vector. 
-* Note: for those first two steps don't forget to normalize your features and randomize a selection for training and testing.
-* Implement a sliding-window technique and use your trained classifier to search for vehicles in images.
+
+* Apply a color transform and append binned color features, as well as histograms of color, to HOG feature vector. 
+
+* Normalize feature vector before feed into a linear Support Vector Machine classifier, train and test model performance
+
+* Implement a sliding-window technique and use trained classifier to search for vehicles in images.
+
 * Run your pipeline on a video stream (start with the test_video.mp4 and later implement on full project_video.mp4) and create a heat map of recurring detections frame by frame to reject outliers and follow detected vehicles.
+
 * Estimate a bounding box for vehicles detected.
 
 [//]: # (Image References)
@@ -25,20 +28,15 @@ The goals / steps of this project are the following:
 [video1]: ./project_video.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
-###Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-###Writeup / README
 
-####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
+### Histogram of Oriented Gradients (HOG)
 
-You're reading it!
+#### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
-###Histogram of Oriented Gradients (HOG)
-
-####1. Explain how (and identify where in your code) you extracted HOG features from the training images.
-
-The code for this step is contained in the first code cell of the IPython notebook (or in lines # through # of the file called `some_file.py`).  
+The code for this step is contained in the 15th code cell of the demo.ipynb IPython notebook (or in lines 109 through 147 of the file called `lib.py`).  
 
 I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
 
@@ -51,19 +49,41 @@ Here is an example using the `YCrCb` color space and HOG parameters of `orientat
 
 ![alt text][image2]
 
-####2. Explain how you settled on your final choice of HOG parameters.
+#### 2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and...
+I tried various combinations of parameters and settled on the following parameter values:
 
-####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
+| HOG parameter   | Value |
+|:---------------:|:-----:|
+| Color space     | YCrCb |
+| Orientation     | 12    |
+| pixels per cell | 8     |
+| cell per block  | 1     |
+| Channels        | All   |
 
-I trained a linear SVM using...
+For color features, the following parameters are selected through trial and error
+
+| Color parameter | Value |
+|:---------------:|:-----:|
+| Color space     | HLS   |
+| histogram bins  | 100   |
+| histogram range | 0-256 |
+| binned size     | 32x32 |
+
+
+#### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
+
+I trained a linear SVM using the labeled data from [KITTI dataset](http://www.cvlibs.net/datasets/kitti/).
+
+The labeled data consists of two labels: car and none car. The data set is split into training set and testing set, which accounts 90% and 10% of the dataset respectively.
+
+A linear Support Vector Machine classifier then is implemented to learn from the feature vector to predict image labels. With C parameter set to 1e-4, the final model has a accuracy of 99.51% and F1 score of 0.995. 
 
 ###Sliding Window Search
 
 ####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
+I decided to search window positions with vertical range between  random scales all over the image and came up with this (ok just kidding I didn't actually ;):
 
 ![alt text][image3]
 

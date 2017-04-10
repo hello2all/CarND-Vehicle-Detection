@@ -63,10 +63,12 @@ def plot3d(pixels, axis_labels="RGB"):
 def draw_boxes(img, bboxes, color=(0, 0, 255), thick=6):
     # make a copy of the image
     draw_img = np.copy(img)
-    cv2.rectangle(draw_img, bboxes[0][0], bboxes[1][0], color, thick)
-    # draw each bounding box on your image copy using cv2.rectangle()
+    for bbox in bboxes:
+        # draw each bounding box on your image copy using cv2.rectangle()
+        cv2.rectangle(draw_img, bbox[0], bbox[1], color, thick)
+
     # return the image copy with boxes drawn
-    return draw_img # Change this line to return image copy with boxes
+    return draw_img
 
 # Define a function to compute binned color features  
 def bin_spatial(img, size=(32, 32)):
@@ -222,14 +224,17 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, ce
             subimg = cv2.resize(ctrans_tosearch[ytop:ytop+window, xleft:xleft+window], (64,64))
           
             # Get color features
-            spatial_features = bin_spatial(subimg, size=spatial_size)
-            hist_features = color_hist(subimg, nbins=hist_bins)
+            subimg_hsl = cv2.cvtColor(subimg, cv2.COLOR_YCrCb2RGB)
+            subimg_hsl = cv2.cvtColor(subimg, cv2.COLOR_RGB2HLS)
+            spatial_features = bin_spatial(subimg_hsl, size=spatial_size)
+            hist_features = color_hist(subimg_hsl, nbins=hist_bins)
 
             # Scale features and make a prediction
             test_features = X_scaler.transform(np.hstack((spatial_features, hist_features, hog_features)).reshape(1, -1))    
-            test_prediction = svc.predict(test_features)
+            test_prediction = svc.decision_function(test_features)
             
-            if test_prediction == 1:
+            # supress predictions with low confidence
+            if test_prediction > .05:
                 xbox_left = np.int(xleft*scale)
                 ytop_draw = np.int(ytop*scale)
                 win_draw = np.int(window*scale)
@@ -258,7 +263,8 @@ def apply_threshold(heatmap, threshold):
     # Return thresholded map
     return heatmap
 
-def draw_labeled_bboxes(img, labels):
+def labeled_bboxes(labels):
+    boxes = []
     # Iterate through all detected cars
     for car_number in range(1, labels[1]+1):
         # Find pixels with each car_number label value
@@ -268,7 +274,7 @@ def draw_labeled_bboxes(img, labels):
         nonzerox = np.array(nonzero[1])
         # Define a bounding box based on min/max x and y
         bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
-        # Draw the box on the image
-        cv2.rectangle(img, bbox[0], bbox[1], (0,0,255), 6)
-    # Return the image
-    return img
+        # append box
+        boxes.append(bbox)
+    # Return boxes
+    return boxes
