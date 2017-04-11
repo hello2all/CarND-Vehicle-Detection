@@ -40,7 +40,7 @@ X_gradient = extract_gradient_features(X_names,
                              cell_per_block=cell_per_block,
                              hog_channel=hog_channel)
 
-colorspace = 'HLS' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
+colorspace = 'YCrCb' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
 spatial_size = (32, 32)
 hist_bins = 100
 hist_range=(0, 256)
